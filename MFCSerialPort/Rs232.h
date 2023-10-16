@@ -37,14 +37,10 @@ public:
 public:
     void Clear();
     int Receive(LPSTR inbuf, int len);
-    BOOL Send(LPCTSTR outbuf, int len);
+    BOOL Send(LPCTSTR outbuf, int len); // COM으로 데이터 전송
     BOOL Create(HWND hWnd);
     void HandleClose();
     void Close();
     void ResetSerial();
-
-    // 프린터
-    //BOOL SendRecvDataBlock(char* pszSendData, char* pszRecvData, int pnSleepTime);
-
 };
 

@@ -45,7 +45,6 @@ public:
 	afx_msg void OnBnClickedConnectBtn();
 	afx_msg void OnBnClickedClearBtn();
 	afx_msg void OnBnClickedSendBtn();
-	afx_msg void OnBnClickedTestBtn();
 	afx_msg void OnCbnSelchangeComboComport();
 	afx_msg void OnCbnSelchangeComboBaudrate();
 	CComboBox m_combo_comport_list;
