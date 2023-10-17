@@ -34,13 +34,18 @@ public:
     int m_nLength;
     CEvent* m_pEvent;
 
+    // Rs232통신
 public:
     void Clear();
-    int Receive(LPSTR inbuf, int len);
+    int Receive(LPSTR inbuf, int len); // COM에서 오는 데이터 받기
     BOOL Send(LPCTSTR outbuf, int len); // COM으로 데이터 전송
     BOOL Create(HWND hWnd);
     void HandleClose();
     void Close();
     void ResetSerial();
+
+    // 영수증 프린터 관련 함수
+public:
+    short PrintQrCode(CString pcsQrCode); // 프린트 qr코드 출력 엡손
 };
 

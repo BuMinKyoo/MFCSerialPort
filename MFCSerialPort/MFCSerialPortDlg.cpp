@@ -208,9 +208,18 @@ void CMFCSerialPortDlg::OnBnClickedSendBtn()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	CString str;
 	GetDlgItem(IDC_EDIT_SEND_DATA)->GetWindowText(str);
-	//str.Format(_T("PRINTER TEST%c%c\x4"), 0x10, 0x04); // 0x04 통신 EOT문자
-	str += "\r\n";
+	str.Format(_T("PRINTER TEST%c%c\x4"), 0x10, 0x04); // 0x04 통신 EOT문자
 	m_Rs232_comm->Send(str, str.GetLength());
+
+	//str += "\x1B\x20\x1ㅁㄴㅇㄻㄴㄹㄴㅁㅇㄹ\r\n";
+	//for (int i = 0; i < 10; i++)
+	//{
+	//	m_Rs232_comm->Send(str, str.GetLength());
+	//}
+
+	//str.Format(_T("%c%c\x4"), 0x1B, 0x69);
+	//str += "\x1B\x69"; // 인쇄 용지 절단
+	//m_Rs232_comm->PrintQrCode("https://naver.com");
 }
 
 
@@ -502,188 +511,4 @@ void CMFCSerialPortDlg::OnCbnSelchangeComboBaudrate()
 //        PaperCut_STP(6);
 //    else
 //        PaperCut_STP(4);
-//}
-
-
-//short CSubFunc::PrintQrCode(CString pcsQrCode) // JMC-2021-0806-ADD : QRCODE 출력 추가
-//{
-//
-//    char	szSendBuff[1024];
-//    CString			LF = _T("\x0A");
-//    CString			GS = _T("\x1d");
-//
-//
-//    //가운데 출력
-//    memset(szSendBuff, 0x00, sizeof(szSendBuff));
-//    szSendBuff[0] = 0x1B;
-//    szSendBuff[1] = 0x61;
-//    szSendBuff[2] = 0x01;
-//    g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 3);
-//
-//
-//    //QR Code: Select the model
-//    memset(szSendBuff, 0x00, sizeof(szSendBuff));
-//    szSendBuff[0] = 0x1D;
-//    szSendBuff[1] = 0x28;
-//    szSendBuff[2] = 0x6B;
-//    szSendBuff[3] = 0x04;
-//    szSendBuff[4] = 0x00;
-//    szSendBuff[5] = 0x31;
-//    szSendBuff[6] = 0x41;
-//    szSendBuff[7] = 0x32;			// 49 model1, 50 model2, 51 micro QR Code+
-//    szSendBuff[8] = 0x00;
-//
-//    g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 9);
-//
-//    //QR Code: Set the size of module
-//
-//    int inUrlLen = strlen(g_stEventInfo.szEventMsg6);
-//    //inUrlLen =strlen(g_stEventInfo.szEventMsg6);
-//    memset(szSendBuff, 0x00, sizeof(szSendBuff));
-//    szSendBuff[0] = 0x1D;
-//    szSendBuff[1] = 0x28;
-//    szSendBuff[2] = 0x6B;
-//    szSendBuff[3] = 0x03;
-//    szSendBuff[4] = 0x00;
-//    szSendBuff[5] = 0x31;
-//    szSendBuff[6] = 0x43;
-//
-//    if (inUrlLen > 0)
-//    {
-//        szSendBuff[7] = 0x06;		// Sets the size of the module for QR Code to n dots.
-//    }
-//    else
-//    {
-//        szSendBuff[7] = 0x07;		// Sets the size of the module for QR Code to n dots.
-//    }
-//
-//    g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 8);
-//
-//    //QR Code: Select the error correction level
-//    memset(szSendBuff, 0x00, sizeof(szSendBuff));
-//    szSendBuff[0] = 0x1D;
-//    szSendBuff[1] = 0x28;
-//    szSendBuff[2] = 0x6B;
-//    szSendBuff[3] = 0x03;
-//    szSendBuff[4] = 0x00;
-//    szSendBuff[5] = 0x31;
-//    szSendBuff[6] = 0x45;
-//    szSendBuff[7] = 0x30;		// 48 Selects Error correction level L , Recover 7% - default
-//    // 49 Selects Error correction level M , Recover 15%
-//    // 50 Selects Error correction level Q , Recover 25%
-//    // 51 Selects Error correction level H , Recover 30%
-//    g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 8);
-//
-//    //QR Code: Store the data in the symbol storage area
-//    memset(szSendBuff, 0x00, sizeof(szSendBuff));
-//    int inLen = pcsQrCode.GetLength() + 3;
-//    szSendBuff[0] = 0x1D;
-//    szSendBuff[1] = 0x28;
-//    szSendBuff[2] = 0x6B;
-//    szSendBuff[3] = inLen % 256;
-//    szSendBuff[4] = inLen / 256;
-//    szSendBuff[5] = 0x31;
-//    szSendBuff[6] = 0x50;
-//    szSendBuff[7] = 0x30;
-//
-//    strcat_s(szSendBuff + 8, sizeof(szSendBuff) - 8, pcsQrCode);
-//
-//    g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 8 + pcsQrCode.GetLength()); // QR에 데이터 담기
-//
-//
-//    //QR Code: Print the symbol data in the symbol storage area
-//    memset(szSendBuff, 0x00, sizeof(szSendBuff));
-//    szSendBuff[0] = 0x1D;
-//    szSendBuff[1] = 0x28;
-//    szSendBuff[2] = 0x6B;
-//    szSendBuff[3] = 0x03;
-//    szSendBuff[4] = 0x00;
-//    szSendBuff[5] = 0x31;
-//    szSendBuff[6] = 0x51;
-//    szSendBuff[7] = 0x30;
-//
-//    g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 8); // QR코드 인쇄
-//
-//    // 	
-//    // 	//QR Code: Transmit the size information of the symbol data in the symbol storage area
-//    // 	memset(szSendBuff,0x00,sizeof(szSendBuff));
-//    // 	szSendBuff[0] = 0x1D;
-//    // 	szSendBuff[1] = 0x28;
-//    // 	szSendBuff[2] = 0x6B;
-//    // 	szSendBuff[3] = 0x03;
-//    // 	szSendBuff[4] = 0x00;
-//    // 	szSendBuff[5] = 0x31;
-//    // 	szSendBuff[6] = 0x52;
-//    // 	szSendBuff[7] = 0x30;
-//    // 	g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 8);
-//    // 	
-//
-//    // 글씨출력 설정 초기화(왼쪽정렬)
-//    memset(szSendBuff, 0x00, sizeof(szSendBuff));
-//    szSendBuff[0] = 0x1B;
-//    szSendBuff[1] = 0x61;
-//    szSendBuff[2] = 0x00;
-//    g_clsRs232C_Scanner.WriteCommBlock(szSendBuff, 3);
-//
-//
-//    return 1;
-//}
-
-//===============================================================================
-// 함 수 명 : WriteCommBlock
-// 기능설명 : 컴포트에 값을 Write한다.
-// 매개변수 : pszByte         : pointer to data to write to file
-//            pdwBytesToWrite : number of bytes to write
-//===============================================================================
-//BOOL CRs232C::WriteCommBlock(LPCSTR pszByte, DWORD pdwBytesToWrite)
-//{
-//    COMSTAT    stComStat;
-//    BOOL       blfWriteStat;
-//    DWORD      dwBytesWritten;
-//    DWORD      dwError;
-//    DWORD      dwErrorFlags = 0;
-//    char       szError[10] = { 0, };
-//
-//    blfWriteStat = WriteFile(m_hComDev, pszByte, pdwBytesToWrite, &dwBytesWritten, &m_stOsWrite);
-//
-//    if (!blfWriteStat)
-//    {
-//        // 컴포트에 데이터를 제대로 써넣지 못했을 경우이다.
-//        dwError = GetLastError();
-//
-//        if (GetLastError() == ERROR_IO_PENDING)
-//        {
-//            while (!GetOverlappedResult(m_hComDev, &m_stOsWrite, &dwBytesWritten, TRUE))
-//            {
-//                dwError = GetLastError();
-//                if (dwError == ERROR_IO_INCOMPLETE)
-//                    // normal result if not finished
-//                    continue;
-//                else
-//                {
-//                    // an error occurred, try to recover
-//                    wsprintf(szError, "<CE-%u>", dwError);
-//                    ClearCommError(m_hComDev, &dwErrorFlags, &stComStat);
-//                    if (dwErrorFlags > 0)
-//                    {
-//                        wsprintf(szError, "<CE-%u>", dwErrorFlags);
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//        else
-//        {
-//            // some other error occurred
-//            ClearCommError(m_hComDev, &dwErrorFlags, &stComStat);
-//
-//            if (dwErrorFlags > 0)
-//            {
-//                wsprintf(szError, "<CE-%u>", dwErrorFlags);
-//            }
-//            return (FALSE);
-//        }
-//
-//    }
-//    return (TRUE);
 //}

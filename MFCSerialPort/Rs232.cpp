@@ -376,3 +376,94 @@ void Rs232::HandleClose()
     CloseHandle(m_OLR.hEvent);
     CloseHandle(m_OLW.hEvent);
 }
+
+// 프린트 qr코드 출력 : TM-T83ll 엡손
+short Rs232::PrintQrCode(CString pcsQrCode)
+{
+    char	szSendBuff[1024];
+    CString			LF = _T("\x0A");
+    CString			GS = _T("\x1d");
+
+    //가운데 출력
+    memset(szSendBuff, 0x00, sizeof(szSendBuff));
+    szSendBuff[0] = 0x1B;
+    szSendBuff[1] = 0x61;
+    szSendBuff[2] = 0x01;
+    Send(szSendBuff, 3);
+
+    //QR Code: Select the model
+    memset(szSendBuff, 0x00, sizeof(szSendBuff));
+    szSendBuff[0] = 0x1D;
+    szSendBuff[1] = 0x28;
+    szSendBuff[2] = 0x6B;
+    szSendBuff[3] = 0x04;
+    szSendBuff[4] = 0x00;
+    szSendBuff[5] = 0x31;
+    szSendBuff[6] = 0x41;
+    szSendBuff[7] = 0x32;			// 49 model1, 50 model2, 51 micro QR Code+
+    szSendBuff[8] = 0x00;
+    Send(szSendBuff, 9);
+
+    //QR Code: Set the size of module
+    memset(szSendBuff, 0x00, sizeof(szSendBuff));
+    szSendBuff[0] = 0x1D;
+    szSendBuff[1] = 0x28;
+    szSendBuff[2] = 0x6B;
+    szSendBuff[3] = 0x03;
+    szSendBuff[4] = 0x00;
+    szSendBuff[5] = 0x31;
+    szSendBuff[6] = 0x43;
+    szSendBuff[7] = 0x06;
+    Send(szSendBuff, 8);
+
+    //QR Code: Select the error correction level
+    memset(szSendBuff, 0x00, sizeof(szSendBuff));
+    szSendBuff[0] = 0x1D;
+    szSendBuff[1] = 0x28;
+    szSendBuff[2] = 0x6B;
+    szSendBuff[3] = 0x03;
+    szSendBuff[4] = 0x00;
+    szSendBuff[5] = 0x31;
+    szSendBuff[6] = 0x45;
+    szSendBuff[7] = 0x30;		// 48 Selects Error correction level L , Recover 7% - default
+    // 49 Selects Error correction level M , Recover 15%
+    // 50 Selects Error correction level Q , Recover 25%
+    // 51 Selects Error correction level H , Recover 30%
+    Send(szSendBuff, 8);
+
+    //QR Code: Store the data in the symbol storage area
+    memset(szSendBuff, 0x00, sizeof(szSendBuff));
+    int inLen = pcsQrCode.GetLength() + 3;
+    szSendBuff[0] = 0x1D;
+    szSendBuff[1] = 0x28;
+    szSendBuff[2] = 0x6B;
+    szSendBuff[3] = inLen % 256;
+    szSendBuff[4] = inLen / 256;
+    szSendBuff[5] = 0x31;
+    szSendBuff[6] = 0x50;
+    szSendBuff[7] = 0x30;
+
+    strcat_s(szSendBuff + 8, sizeof(szSendBuff) - 8, pcsQrCode);
+    Send(szSendBuff, 8 + pcsQrCode.GetLength()); // QR에 데이터 담기
+
+    //QR Code: Print the symbol data in the symbol storage area
+    memset(szSendBuff, 0x00, sizeof(szSendBuff));
+    szSendBuff[0] = 0x1D;
+    szSendBuff[1] = 0x28;
+    szSendBuff[2] = 0x6B;
+    szSendBuff[3] = 0x03;
+    szSendBuff[4] = 0x00;
+    szSendBuff[5] = 0x31;
+    szSendBuff[6] = 0x51;
+    szSendBuff[7] = 0x30;
+    Send(szSendBuff, 8); // QR코드 인쇄
+
+    // 글씨출력 설정 초기화(왼쪽정렬)
+    memset(szSendBuff, 0x00, sizeof(szSendBuff));
+    szSendBuff[0] = 0x1B;
+    szSendBuff[1] = 0x61;
+    szSendBuff[2] = 0x00;
+    Send(szSendBuff, 3);
+
+    return 1;
+}
